@@ -3,6 +3,7 @@ package com.myorg;
 import software.amazon.awscdk.App;
 import software.amazon.awscdk.Environment;
 import software.amazon.awscdk.StackProps;
+import software.amazon.awscdk.services.elasticloadbalancingv2.*;
 
 import java.util.*;
 
@@ -62,6 +63,15 @@ public class ECommerceEcsCdkApp {
         productServiceStack.addDependency(clusterStack);
         productServiceStack.addDependency(nlbStack);
         productServiceStack.addDependency(ecrStack);
+
+        ApiStack apiStack = new ApiStack(app, "Api", StackProps.builder()
+                .env(environment)
+                .tags(infraTags)
+                .build(),
+                new ApiStackProps(
+                        nlbStack.getNetworkLoadBalancer(),
+                        nlbStack.getVpcLink()));
+                apiStack.addDependency(nlbStack);
 
         app.synth();
     }
